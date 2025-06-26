@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  ssh-wrapper:
+    build:
+      context: .
+    container_name: ssh_wrapper
+    ports:
+      - "${LISTEN_PORT:-22}:22"  # Use env variable or default to 22
+    environment:
+      - ABUSEIPDB_API_KEY
+      - SHODAN_API_KEY
+      - DB_BACKEND
+      - DB_URL
+      - COWRIE_HOST
+      - COWRIE_PORT
+      - LISTEN_PORT
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - cowrie
+    restart: unless-stopped
+
+  cowrie:
+    image: cowrie/cowrie
+    container_name: cowrie
+    ports:
+      - "2222:2222"
+    volumes:
+      - cowrie_data:/cowrie
+    restart: unless-stopped
+
+volumes:
+  cowrie_data:
